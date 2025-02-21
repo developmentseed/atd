@@ -23,7 +23,6 @@ dependencies = [
     { name = "rasterio" },
     { name = "rio-stac" },
     { name = "stacrs" },
-    { name = "tqdm" },
 ]
 
 [package.metadata]
@@ -35,7 +34,6 @@ requires-dist = [
     { name = "rasterio", specifier = ">=1.4.3" },
     { name = "rio-stac", specifier = ">=0.10.1" },
     { name = "stacrs", git = "https://github.com/stac-utils/stacrs" },
-    { name = "tqdm", specifier = ">=4.67.1" },
 ]
 
 [[package]]
@@ -223,14 +221,14 @@ wheels = [
 
 [[package]]
 name = "pystac"
-version = "1.12.1"
+version = "1.12.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "python-dateutil" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/cc/14/25c6eeeb1f34afb69a1b86915be093b05dd3cdc2cf1acf9a7266275dc78d/pystac-1.12.1.tar.gz", hash = "sha256:7735d217c1c596f916d0a048c7bdd08f6bc6cb97369b628fab9b7eba4092fbdd", size = 149815 }
+sdist = { url = "https://files.pythonhosted.org/packages/1b/da/50f63a3e86c95915f28dfee7f08eb1780baeb122f4aa98e37049ed6b0849/pystac-1.12.2.tar.gz", hash = "sha256:13a9926fdc6f5a0c81a6bcf5748d3e46fd8814b888936b94fd6d8ca6caf0c20d", size = 149989 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/74/19/64b318a28d152e2ebf29c3e06c0a1147045a951398bc8de1f4bea873ef46/pystac-1.12.1-py3-none-any.whl", hash = "sha256:eb46fe63b494cfd1ccf5dfafa9256a1893ef9b6d4ee69373e040e3888270357e", size = 194151 },
+    { url = "https://files.pythonhosted.org/packages/08/94/6f93e55886cae4076dfe1c5c0a768963f6faca34d7cd27a2ee6800e29387/pystac-1.12.2-py3-none-any.whl", hash = "sha256:7ab6d3d191013727d789f803869789a26e546543a27da3bf2b8abf96b8264d3f", size = 194207 },
 ]
 
 [[package]]
@@ -296,19 +294,7 @@ wheels = [
 [[package]]
 name = "stacrs"
 version = "0.5.5"
-source = { git = "https://github.com/stac-utils/stacrs#4cd41ebfec1d03197dee481e7c7c8454d8904333" }
-
-[[package]]
-name = "tqdm"
-version = "4.67.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/a8/4b/29b4ef32e036bb34e4ab51796dd745cdba7ed47ad142a9f4a1eb8e0c744d/tqdm-4.67.1.tar.gz", hash = "sha256:f8aef9c52c08c13a65f30ea34f4e5aac3fd1a34959879d7e59e63027286627f2", size = 169737 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/d0/30/dc54f88dd4a2b5dc8a0279bdd7270e735851848b762aeb1c1184ed1f6b14/tqdm-4.67.1-py3-none-any.whl", hash = "sha256:26445eca388f82e72884e0d580d5464cd801a3ea01e63e5601bdff9ba6a48de2", size = 78540 },
-]
+source = { git = "https://github.com/stac-utils/stacrs#231bd72e54b0e81a2230429a22151da50fb49048" }
 
 [[package]]
 name = "typing-extensions"

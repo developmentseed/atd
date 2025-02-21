@@ -13,7 +13,6 @@ dependencies = [
     "rasterio>=1.4.3",
     "rio-stac>=0.10.1",
     "stacrs @ git+https://github.com/stac-utils/stacrs",
-    "tqdm>=4.67.1",
 ]
 
 [project.scripts]
