@@ -34,7 +34,7 @@ requires-dist = [
     { name = "pystac", specifier = ">=1.12.1" },
     { name = "rasterio", specifier = ">=1.4.3" },
     { name = "rio-stac", specifier = ">=0.10.1" },
-    { name = "stacrs", specifier = ">=0.5.5" },
+    { name = "stacrs", git = "https://github.com/stac-utils/stacrs" },
     { name = "tqdm", specifier = ">=4.67.1" },
 ]
 
@@ -296,22 +296,7 @@ wheels = [
 [[package]]
 name = "stacrs"
 version = "0.5.5"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/5b/9b/ccc62d0321a05a68bd0e19bd97a52e4deb405db0a255eabd3fa6aea44b81/stacrs-0.5.5.tar.gz", hash = "sha256:22abb773dec5b73c11b81827d73675eb9683dc02b3a93a0e213a15f26d2d7275", size = 559985 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/b7/03/cf5c614f55d077155b3007aa498bdc044ae6f8435920a5642fe2adabb0ac/stacrs-0.5.5-cp310-abi3-macosx_10_12_x86_64.whl", hash = "sha256:f1a8009b457696452b230ff29602b2b663267e65eacf710f6d6695935ce77d44", size = 22963772 },
-    { url = "https://files.pythonhosted.org/packages/b8/3c/b1b4cbc359bbd87d1a36098c33aab3279322871070077acd233a233e1993/stacrs-0.5.5-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:2e8277fbc3e3e00f2647469ff47a2cd69cf86f1419e5fdae21a07a9846c54d99", size = 21127004 },
-    { url = "https://files.pythonhosted.org/packages/9e/73/0c87e00a8a893e57c0cb712f463c72b2a00e099ab9e8ce77d5a4b409918f/stacrs-0.5.5-cp310-abi3-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:937d77fc4cb8963af78b1c485737b7871b2cf4c365853da89b82707a468c7168", size = 23543651 },
-    { url = "https://files.pythonhosted.org/packages/4b/e6/fe0ea49ef1b2d552516e1eb556c8d894f559763436cec39015c661db9978/stacrs-0.5.5-cp310-abi3-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:bcc694323f4a6a36b1ebc6a414f3c1f054917487ee69b80e0cd879b8f20ae6e1", size = 27749622 },
-    { url = "https://files.pythonhosted.org/packages/c3/8d/7b78740bec332627d21d29c13bde34ccf856e0f637840d3deeda09e11288/stacrs-0.5.5-cp310-abi3-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:509d4f71af73443ed10efb5922e7c8cb52754ecbdf6f654d77ea34b20dd662a9", size = 25592737 },
-    { url = "https://files.pythonhosted.org/packages/2e/49/fdef2f1925710691e577d859b1033384bb1dcdd6d6be4eef3a35424f5e0b/stacrs-0.5.5-cp310-abi3-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:9c5777da2ab86281ba18a45077a2e0d76878cfb311e6c5b50856ada1700ffe32", size = 26738180 },
-    { url = "https://files.pythonhosted.org/packages/01/bc/f5242dddfac08879c673e9439b3531192c7039ea32c6cba06f6337b4ae07/stacrs-0.5.5-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:22a44eabdd057755fff3d602405c812c205ad09817bea716f0c979a8480ef739", size = 25137689 },
-    { url = "https://files.pythonhosted.org/packages/8f/d5/84d44d755a14e31da8f19739fc9bfbedc142dfcb4e0f284548d56d52ea69/stacrs-0.5.5-cp310-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:82c43f29965e05fd0ebc55883ca07b3c1a75206a10b958ca3fcecc8220d30661", size = 23752076 },
-    { url = "https://files.pythonhosted.org/packages/8d/ec/87908cd5a92ed55c502c5b3853fbea2eebf2f9e91edd316d75f7529ae53f/stacrs-0.5.5-cp310-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:238a1cc3209e81dc4cc727ab708f81b642b8d6412c6be470748e24987c92afbb", size = 29496450 },
-    { url = "https://files.pythonhosted.org/packages/00/cf/96c1ef69737794739a5dca17afbefd95892d226e4ee74e03fdcb80c6ec38/stacrs-0.5.5-cp310-abi3-musllinux_1_2_armv7l.whl", hash = "sha256:c3d7c9c9c858673aeff4635724b4956eb313d0121a6a47e95ff7f8e24934e4c0", size = 30088254 },
-    { url = "https://files.pythonhosted.org/packages/1d/2b/abb1af7c293fa695d03f7fbee1a6e9fd8dd02f41a35dca48d0b6b1eed8bd/stacrs-0.5.5-cp310-abi3-musllinux_1_2_i686.whl", hash = "sha256:5d823609ed5bc4e3dd2b49825a559eece3ab3870aff583e1cddb74746771a2da", size = 32815206 },
-    { url = "https://files.pythonhosted.org/packages/69/6c/f4b5bdb2d56b191d4c2a1af1f13c78b30623fbf290b5334b09f2414e6678/stacrs-0.5.5-cp310-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:4241f4670b15c463f2a65895b04f0aa76bbc37aebaa044f410bfea3f9a2aaac4", size = 31069974 },
-]
+source = { git = "https://github.com/stac-utils/stacrs#4cd41ebfec1d03197dee481e7c7c8454d8904333" }
 
 [[package]]
 name = "tqdm"

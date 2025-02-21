@@ -62,9 +62,9 @@ def cli(source: str, destination: str) -> None:
                             asset_href=destination_href,
                             asset_roles=["data"],
                             id=id,
-                            with_eo=False,
-                            with_proj=False,
-                            with_raster=False,
+                            with_eo=True,
+                            with_proj=True,
+                            with_raster=True,
                         )
                 checksum = multihash.digest(data, "sha2-256").hex()
                 item.ext.add("file")
