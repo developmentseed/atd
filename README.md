@@ -27,7 +27,7 @@ Then:
 
 ```shell
 $ atd s3://maxar-opendata/events/Marshall-Fire-21-Update/13/031131113030/2021-12-30 \
-  s3://ds-pete/maxar-opendata/Marshall-Fire-21-Update/items.geoparquet
+  s3://ds-pete/maxar-opendata/Marshall-Fire-21-Update
 Getting 10200100BCB1A500-pan.tif (44.62 MB)
 Getting 10200100BCB1A500-visual.tif (18.02 MB)
 Got 10200100BCB1A500-visual.tif (18.02 MB in 2.20s)
