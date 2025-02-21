@@ -26,7 +26,8 @@ python -m pip install git+ssh://git@github.com/developmentseed/atd.git
 Then:
 
 ```shell
-$ atd s3://maxar-opendata/events/Marshall-Fire-21-Update/13/031131113030/2021-12-30  s3://ds-pete/maxar-opendata/Marshall-Fire-21-Update/items.geoparquet
+$ atd s3://maxar-opendata/events/Marshall-Fire-21-Update/13/031131113030/2021-12-30 \
+  s3://ds-pete/maxar-opendata/Marshall-Fire-21-Update/items.geoparquet
 Getting 10200100BCB1A500-pan.tif (44.62 MB)
 Getting 10200100BCB1A500-visual.tif (18.02 MB)
 Got 10200100BCB1A500-visual.tif (18.02 MB in 2.20s)
@@ -46,7 +47,8 @@ Items are available at  s3://ds-pete/maxar-opendata/Marshall-Fire-21-Update/item
 There's two assets:
 
 ```shell
-$ stacrs translate  s3://ds-pete/maxar-opendata/Marshall-Fire-21-Update/items.geoparquet | jq '.features.[] | .assets' 
+$ stacrs translate  s3://ds-pete/maxar-opendata/Marshall-Fire-21-Update/items.geoparquet \
+  | jq '.features.[] | .assets' 
 {
   "original": {
     "href": "s3://maxar-opendata/events/Marshall-Fire-21-Update/13/031131113030/2021-12-30/10200100BCB1A500-pan.tif",
