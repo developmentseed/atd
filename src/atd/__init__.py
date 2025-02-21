@@ -1,17 +1,18 @@
 import asyncio
 import datetime
+import time
 import urllib.parse
+from asyncio import Queue, TaskGroup
 from pathlib import Path
+from typing import Any
 
 import click
 import obstore
 import obstore.store
 import rio_stac
 import stacrs
-import tqdm
-import tqdm.asyncio
 from multiformats import multihash
-from pystac import Asset
+from pystac import Asset, Item
 from rasterio import MemoryFile
 
 
@@ -24,63 +25,44 @@ def cli(source: str, destination: str) -> None:
     source_store = obstore.store.from_url(source, timeout=timeout)
     destination = to_url(destination)
     destination_store = obstore.store.from_url(destination)
-    items = []
-    chunk_size = 5 * 1024 * 1024
+    messages = Queue()
 
     async def run() -> None:
         pages = list(obstore.list(source_store))
-        nfiles = 0
-        for page in tqdm.tqdm(pages, desc="pages", position=0):
-            for entry in tqdm.tqdm(page, desc="entries", position=1):
-                path: str = entry["path"]
-                if "." not in path:
-                    continue
-                id, ext = path.rsplit(".")
-                if ext not in ("tif", "tiff"):
-                    continue
-                size = entry["size"]
+        tasks = []
+        asyncio.create_task(print_messages(messages))
+        async with TaskGroup() as task_group:
+            for page in pages:
+                for entry in page:
+                    path: str = entry["path"]
+                    if "." not in path:
+                        continue
+                    id, ext = path.rsplit(".", 1)
+                    if ext not in ("tif", "tiff"):
+                        continue
 
-                response = await obstore.get_async(source_store, path)
-                data = b""
-                progress = tqdm.tqdm(
-                    total=size,
-                    unit="B",
-                    unit_scale=True,
-                    desc=path,
-                    position=nfiles + 2,
-                    leave=False,
-                )
-                nfiles += 1
-                async for chunk in response.stream(min_chunk_size=chunk_size):
-                    progress.update(len(chunk))
-                    data += bytes(chunk)
-                destination_href = destination.rstrip("/") + "/" + path
-                with MemoryFile(data) as memory_file:
-                    with memory_file.open() as dataset:
-                        item = rio_stac.create_stac_item(
-                            dataset,
-                            asset_href=destination_href,
-                            asset_roles=["data"],
-                            id=id,
-                            with_eo=True,
-                            with_proj=True,
-                            with_raster=True,
+                    tasks.append(
+                        task_group.create_task(
+                            duplicate(
+                                source,
+                                source_store,
+                                destination,
+                                destination_store,
+                                path,
+                                id,
+                                entry["size"],
+                                messages,
+                            )
                         )
-                checksum = multihash.digest(data, "sha2-256").hex()
-                item.ext.add("file")
-                asset = item.assets["asset"]
-                asset.ext.file.checksum = checksum
-                original = Asset(href=source.rstrip("/") + "/" + path)
-                original.ext.file.checksum = checksum
-                item.assets = {"data": asset, "original": original}
-                items.append(
-                    item.to_dict(include_self_link=False, transform_hrefs=False)
-                )
-                progress.desc += " (uploading)"
-                progress.update(0)
-                await obstore.put_async(destination_store, entry["path"], data)
+                    )
 
-        await stacrs.write(destination.rstrip("/") + "/" + "items.geoparquet", items)
+        items = [task.result().to_dict() for task in tasks]
+        await messages.put("Putting items.geoparquet")
+        geoparquet_path = destination.rstrip("/") + "/" + "items.geoparquet"
+        await stacrs.write(geoparquet_path, items)
+        await messages.put("Put items.geoparquet")
+        await messages.put(None)
+        print(f"Items are available at {geoparquet_path}")
 
     asyncio.run(run())
 
@@ -90,6 +72,69 @@ def to_url(s: str) -> str:
         return s
     else:
         return "file://" + str(Path(s).absolute())
+
+
+async def duplicate(
+    source: str,
+    source_store: Any,  # https://github.com/developmentseed/obstore/issues/186
+    destination: str,
+    destination_store: Any,  # https://github.com/developmentseed/obstore/issues/186
+    path: str,
+    id: str,
+    size: int,
+    messages: Queue,
+) -> Item:
+    response = await obstore.get_async(source_store, path)
+    data = b""
+    await messages.put(f"Getting {path} ({size / 1_000_000:.2f} MB)")
+    start = time.time()
+    data += bytes(await response.bytes_async())
+    await messages.put(
+        f"Got {path} ({size / 1_000_000:.2f} MB in {time.time() - start:.2f}s)"
+    )
+    destination_href = destination.rstrip("/") + "/" + path
+
+    await messages.put(f"Creating STAC item for {path}")
+    start = time.time()
+    with MemoryFile(data) as memory_file:
+        with memory_file.open() as dataset:
+            item = rio_stac.create_stac_item(
+                dataset,
+                asset_href=destination_href,
+                asset_roles=["data"],
+                id=id,
+                with_eo=False,
+                with_proj=False,
+                with_raster=False,
+            )
+    checksum = multihash.digest(data, "sha2-256").hex()
+    item.ext.add("file")
+    asset = item.assets["asset"]
+    asset.ext.file.checksum = checksum
+    original = Asset(href=source.rstrip("/") + "/" + path)
+    original.ext.file.checksum = checksum
+    item.assets = {"data": asset, "original": original}
+    await messages.put(f"Created STAC item for {path} ({time.time() - start:.2f}s)")
+
+    await messages.put(f"Putting {path} ({size / 1_000_000:.2f} MB)")
+    start = time.time()
+    await obstore.put_async(destination_store, path, data)
+    await messages.put(
+        f"Put {path} ({size / 1_000_000:.2f} MB in {time.time() - start:.2f}s)"
+    )
+
+    return item
+
+
+async def print_messages(queue: Queue) -> None:
+    while True:
+        message = await queue.get()
+        if message is None:
+            queue.task_done()
+            break
+        else:
+            print(message)
+            queue.task_done()
 
 
 if __name__ == "__main__":
