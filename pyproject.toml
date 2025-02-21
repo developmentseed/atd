@@ -1,0 +1,24 @@
+[project]
+name = "atd"
+version = "0.1.0"
+description = "the Ability To Duplicate"
+readme = "README.md"
+authors = [{ name = "Pete Gadomski", email = "pete.gadomski@gmail.com" }]
+requires-python = ">=3.12"
+dependencies = [
+    "click>=8.1.8",
+    "multiformats>=0.3.1.post4",
+    "obstore>=0.4.0",
+    "pystac>=1.12.1",
+    "rasterio>=1.4.3",
+    "rio-stac>=0.10.1",
+    "stacrs>=0.5.5",
+    "tqdm>=4.67.1",
+]
+
+[project.scripts]
+atd = "atd:cli"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
