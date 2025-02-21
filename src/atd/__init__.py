@@ -31,7 +31,7 @@ def cli(source: str, destination: str) -> None:
         pages = list(obstore.list(source_store))
         nfiles = 0
         for page in tqdm.tqdm(pages, desc="pages", position=0):
-            for entry in tqdm.tqdm(page, desc="page", position=1):
+            for entry in tqdm.tqdm(page, desc="entries", position=1):
                 path: str = entry["path"]
                 if "." not in path:
                     continue
@@ -76,6 +76,8 @@ def cli(source: str, destination: str) -> None:
                 items.append(
                     item.to_dict(include_self_link=False, transform_hrefs=False)
                 )
+                progress.desc += " (uploading)"
+                progress.update(0)
                 await obstore.put_async(destination_store, entry["path"], data)
 
         await stacrs.write(destination.rstrip("/") + "/" + "items.geoparquet", items)
