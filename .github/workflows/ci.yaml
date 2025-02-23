@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Sync
+        run: uv sync
+      - name: Lint
+        run: |
+          uv run mypy
+          uv run ruff check
+          uv run ruff format --check
+      - name: Test
+        run: pytest
+      - name: Build docs
+        run: uv run pycco atd.py
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/
+  deploy:
+    name: Deploy docs
+    needs: ci
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
