@@ -194,6 +194,7 @@ async def copy(
     destination_href = destination.rstrip("/") + "/" + source_file.path
     await messages.put(f"Creating STAC item for {source_file.path}")
     start = time.time()
+
     item = create_item(data, source_file, destination_href)
     await messages.put(
         f"Created STAC item for {source_file.path} ({time.time() - start:.2f}s)"
@@ -201,6 +202,7 @@ async def copy(
 
     await messages.put(f"Putting {source_file.path} ({source_file.get_size_in_mb()})")
     start = time.time()
+
     await obstore.put_async(destination_store, source_file.path, data)
     await messages.put(
         f"Put {source_file.path} ({source_file.get_size_in_mb()} MB in {time.time() - start:.2f}s)"
