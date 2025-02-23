@@ -12,7 +12,7 @@ dependencies = [
     "pystac>=1.12.1",
     "rasterio>=1.4.3",
     "rio-stac>=0.10.1",
-    "stacrs @ git+https://github.com/stac-utils/stacrs",
+    "stacrs==0.5.6b0",
 ]
 
 [project.scripts]
@@ -24,3 +24,23 @@ build-backend = "hatchling.build"
 
 [tool.hatch.metadata]
 allow-direct-references = true
+
+[dependency-groups]
+dev = [
+    "mypy>=1.15.0",
+    "pycco>=0.6.0",
+    "pytest>=8.3.4",
+    "ruff>=0.9.7",
+    "watchdog>=6.0.0",
+]
+
+[tool.pytest.ini_options]
+python_files = "tests.py"
+filterwarnings = ["error", "ignore:datetime.datetime.utcnow:DeprecationWarning"]
+
+[tool.mypy]
+files = "atd.py,tests.py"
+
+[[tool.mypy.overrides]]
+module = ['rio_stac', 'rasterio']
+ignore_missing_imports = true
