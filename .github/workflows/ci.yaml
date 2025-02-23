@@ -23,7 +23,7 @@ jobs:
       - name: Test
         run: uv run pytest
       - name: Build docs
-        run: uv run pycco atd.py
+        run: uv run pycco -i atd.py
       - uses: actions/upload-pages-artifact@v3
         with:
           path: docs/
