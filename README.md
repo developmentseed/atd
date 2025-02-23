@@ -5,6 +5,8 @@ the Ability To Duplicate
 > [!WARNING]
 > This is a proof-of-concept that is not intended for production use.
 
+See [the docs](https://developmentseed.org/atd/) for a step-by-step walkthrough of what's going on.
+
 ![A gif of the thing working](./img/atd.gif)
 
 ## Motivation
