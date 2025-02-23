@@ -53,8 +53,8 @@ class SourceFile:
     id: str | None
     size: int
 
-    @classmethod
     # Creates a source file from an entry in a **obstore** `list` operation.
+    @classmethod
     def from_entry(cls: type[SourceFile], source: str, entry: ObjectMeta) -> SourceFile:
         path = entry["path"]
         if "." in path:
@@ -75,10 +75,10 @@ class SourceFile:
         return f"{self.size / 1_000_000:.2f} MB"
 
 
+# A more advanced CLI would provide options for customizing the behavior of the operations. For now, we keep it simple.
 @click.command
 @click.argument("source")
 @click.argument("destination")
-# A more advanced CLI would provide options for customizing the behavior of the operations. For now, we keep it simple.
 def cli(source: str, destination: str) -> None:
     timeout = datetime.timedelta(minutes=10)
     source = to_url(source)
@@ -106,8 +106,7 @@ def cli(source: str, destination: str) -> None:
                 )
 
         items = [task.result().to_dict() for task in tasks]
-        await messages.put("Putting items.geoparquet")
-        geoparquet_path = destination.rstrip("/") + "/" + "items.geoparquet"
+
         # The **stac-geoparquet** file is organized in a way that allows for easy search and discovery.
         # **stacrs** uses [DuckDB](https://duckdb.org/) under-the-hood to enable STAC API queries:
         #
@@ -126,6 +125,8 @@ def cli(source: str, destination: str) -> None:
         #
         # You could then browse the items with [stac-browser](https://radiantearth.github.io/stac-browser/#/?.language=en).
         # See [the README](https://github.com/developmentseed/atd/blob/main/README.md) for a complete walkthrough.
+        await messages.put("Putting items.geoparquet")
+        geoparquet_path = destination.rstrip("/") + "/" + "items.geoparquet"
         await stacrs.write(geoparquet_path, items)
         await messages.put("Put items.geoparquet")
 
