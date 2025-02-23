@@ -1,6 +1,6 @@
 """the Ability To Duplicate
 
-This is a proof-of-concept that brings together a few concepts:
+This is a proof-of-concept that brings together a few ideas:
 
 - **Duplication**: copy geospatial data assets from one place to another. This might be across cloud providers, or to/from a local system.
 - **Provenance**: use characteristics of the data to add metadata that helps users know the data are valid copies (e.g. checksums).
@@ -179,12 +179,11 @@ async def copy(
     # A real-world implementation would have some sort of throttling to ensure
     # we don't request too many things at once.
     response = await obstore.get_async(source_store, source_file.path)
-    data = b""
 
     await messages.put(f"Getting {source_file.path} ({source_file.get_size_in_mb()})")
     start = time.time()
     # We use async whenever we can to allow the scheduler to run other tasks while we're doing IO.
-    data += bytes(await response.bytes_async())
+    data = bytes(await response.bytes_async())
     await messages.put(
         f"Got {source_file.path} ({source_file.get_size_in_mb()} in {time.time() - start:.2f}s)"
     )
