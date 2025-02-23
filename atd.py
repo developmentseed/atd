@@ -176,12 +176,12 @@ async def copy(
     destination_store: ObjectStore,
     messages: Queue,
 ) -> Item:
+    await messages.put(f"Getting {source_file.path} ({source_file.get_size_in_mb()})")
+    start = time.time()
+
     # A real-world implementation would have some sort of throttling to ensure
     # we don't request too many things at once.
     response = await obstore.get_async(source_store, source_file.path)
-
-    await messages.put(f"Getting {source_file.path} ({source_file.get_size_in_mb()})")
-    start = time.time()
     # We use async whenever we can to allow the scheduler to run other tasks
     # while we're doing IO.  Here, we're naïvely copying all the bytes to
     # memory. For large files, this might be bad, and you might want to use a
