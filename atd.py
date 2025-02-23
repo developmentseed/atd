@@ -182,7 +182,10 @@ async def copy(
 
     await messages.put(f"Getting {source_file.path} ({source_file.get_size_in_mb()})")
     start = time.time()
-    # We use async whenever we can to allow the scheduler to run other tasks while we're doing IO.
+    # We use async whenever we can to allow the scheduler to run other tasks
+    # while we're doing IO.  Here, we're naïvely copying all the bytes to
+    # memory. For large files, this might be bad, and you might want to use a
+    # temporary file instead.
     data = bytes(await response.bytes_async())
     await messages.put(
         f"Got {source_file.path} ({source_file.get_size_in_mb()} in {time.time() - start:.2f}s)"
