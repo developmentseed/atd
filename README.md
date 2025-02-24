@@ -22,7 +22,7 @@ Inspired by a discussion around data duplication during the "Meet the Partners" 
 Install:
 
 ```shell
-python -m pip install git+ssh://git@github.com/developmentseed/atd.git
+python -m pip install git+https://github.com/developmentseed/atd
 ```
 
 Then:
