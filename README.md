@@ -28,24 +28,23 @@ python -m pip install git+ssh://git@github.com/developmentseed/atd.git
 Then:
 
 ```shell
-$ atd s3://maxar-opendata/events/Marshall-Fire-21-Update/13/031131113030/2021-12-30 \
-  s3://ds-pete/maxar-opendata/Marshall-Fire-21-Update
-62.6 MB written to s3://ds-pete/maxar-opendata/Marshall-Fire-21-Update
-Items available at s3://ds-pete/maxar-opendata/Marshall-Fire-21-Update/items.geoparquet
+# You could write to s3 (or some other blob storage) as well
+$ atd s3://maxar-opendata/events/Marshall-Fire-21-Update/13/031131113030/2021-12-30 ~/Desktop
+62.6 MB written to file:///Users/gadomski/Desktop
+Items available at file:///Users/gadomski/Desktop/items.geoparquet 
 ```
 
 There's two assets:
 
 ```shell
-$ stacrs translate  s3://ds-pete/maxar-opendata/Marshall-Fire-21-Update/items.geoparquet \
-  | jq '.features.[0] | .assets'
+$ stacrs translate ~/Desktop/items.geoparquet | jq '.features.[0] | .assets'
 {
   "original": {
     "href": "s3://maxar-opendata/events/Marshall-Fire-21-Update/13/031131113030/2021-12-30/10200100BCB1A500-pan.tif",
     "file:checksum": "12202f1ea332dd0e7a559b78e16952c5b9be81e44ddf9768634db12dcb311b3f587f"
   },
   "data": {
-    "href": "s3://ds-pete/maxar-opendata/Marshall-Fire-21-Update/10200100BCB1A500-pan.tif",
+    "href": "file:///Users/gadomski/Desktop/10200100BCB1A500-pan.tif",
     "type": "image/tiff; application=geotiff",
     "roles": [
       "data"
@@ -64,7 +63,8 @@ $ stacrs translate  s3://ds-pete/maxar-opendata/Marshall-Fire-21-Update/items.ge
 You can use `stacrs serve` to browse them:
 
 ```shell
-stacrs serve s3://ds-pete/maxar-opendata/Marshall-Fire-21-Update/items.geoparquet 
+$ stacrs serve ~/Desktop/items.geoparquet                                  
+Serving a STAC API at http://127.0.0.1:7822
 ```
 
 Then go to <https://radiantearth.github.io/stac-browser/#/external/http:/127.0.0.1:7822> to browse.
