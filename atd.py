@@ -137,7 +137,7 @@ def cli(source: str, destination: str) -> None:
         #
         # You could then browse the items with [stac-browser](https://radiantearth.github.io/stac-browser/#/?.language=en).
         # See [the README](https://github.com/developmentseed/atd/blob/main/README.md) for a complete walkthrough.
-        geoparquet_path = destination.rstrip("/") + "/" + "items.geoparquet"
+        geoparquet_path = destination.rstrip("/") + "/" + "items.parquet"
         await stacrs.write(geoparquet_path, items)
         await messages.put({"state": "put", "path": geoparquet_path, "size": None})
 

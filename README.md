@@ -31,13 +31,13 @@ Then:
 # You could write to s3 (or some other blob storage) as well
 $ atd s3://maxar-opendata/events/Marshall-Fire-21-Update/13/031131113030/2021-12-30 ~/Desktop
 62.6 MB written to file:///Users/gadomski/Desktop
-Items available at file:///Users/gadomski/Desktop/items.geoparquet 
+Items available at file:///Users/gadomski/Desktop/items.parquet 
 ```
 
 There's two assets:
 
 ```shell
-$ stacrs translate ~/Desktop/items.geoparquet | jq '.features.[0] | .assets'
+$ stacrs translate ~/Desktop/items.parquet | jq '.features.[0] | .assets'
 {
   "original": {
     "href": "s3://maxar-opendata/events/Marshall-Fire-21-Update/13/031131113030/2021-12-30/10200100BCB1A500-pan.tif",
@@ -63,7 +63,7 @@ $ stacrs translate ~/Desktop/items.geoparquet | jq '.features.[0] | .assets'
 You can use `stacrs serve` to browse them:
 
 ```shell
-$ stacrs serve ~/Desktop/items.geoparquet                                  
+$ stacrs serve ~/Desktop/items.parquet                                  
 Serving a STAC API at http://127.0.0.1:7822
 ```
 
