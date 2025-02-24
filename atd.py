@@ -145,7 +145,7 @@ def cli(source: str, destination: str) -> None:
         await messages.put(None)
         put = await progress_task
         put.write(
-            f"{humanize.naturalsize(size)} written to {destination}, items available at "
+            f"{humanize.naturalsize(size)} written to {destination}\nItems available at "
             + geoparquet_path
         )
 

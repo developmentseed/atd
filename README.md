@@ -30,7 +30,8 @@ Then:
 ```shell
 $ atd s3://maxar-opendata/events/Marshall-Fire-21-Update/13/031131113030/2021-12-30 \
   s3://ds-pete/maxar-opendata/Marshall-Fire-21-Update
-62.6 MB written to s3://ds-pete/maxar-opendata/Marshall-Fire-21-Update, items available at s3://ds-pete/maxar-opendata/Marshall-Fire-21-Update/items.geoparquet
+62.6 MB written to s3://ds-pete/maxar-opendata/Marshall-Fire-21-Update
+Items available at s3://ds-pete/maxar-opendata/Marshall-Fire-21-Update/items.geoparquet
 ```
 
 There's two assets:
