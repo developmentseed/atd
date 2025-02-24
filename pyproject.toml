@@ -7,12 +7,14 @@ authors = [{ name = "Pete Gadomski", email = "pete.gadomski@gmail.com" }]
 requires-python = ">=3.12"
 dependencies = [
     "click>=8.1.8",
+    "humanize>=4.12.1",
     "multiformats>=0.3.1.post4",
     "obstore>=0.4.0",
     "pystac>=1.12.1",
     "rasterio>=1.4.3",
     "rio-stac>=0.10.1",
     "stacrs==0.5.6b0",
+    "tqdm>=4.67.1",
 ]
 
 [project.scripts]
@@ -31,6 +33,7 @@ dev = [
     "pycco>=0.6.0",
     "pytest>=8.3.4",
     "ruff>=0.9.7",
+    "types-tqdm>=4.67.0.20241221",
     "watchdog>=6.0.0",
 ]
 

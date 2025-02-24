@@ -13,14 +13,14 @@ from __future__ import annotations
 
 import asyncio
 import datetime
-import time
 import urllib.parse
 from asyncio import Queue, TaskGroup
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING, Iterator, Literal, TypedDict
 
 import click
+import humanize
 
 # **obstore** is a modern Python library that uses Rust under the hood for fast cross-cloud operations: <https://developmentseed.org/obstore/>
 import obstore
@@ -31,6 +31,7 @@ import rio_stac
 
 # [stacrs](https://github.com/stac-utils/stacrs) uses the same underlying Rust library as **obstore** for cross-cloud operations, and can read and write [stac-geoparquet](https://github.com/stac-utils/stac-geoparquet/blob/main/spec/stac-geoparquet-spec.md).
 import stacrs
+import tqdm
 from multiformats import multihash
 from pystac import Asset, Item
 from rasterio import MemoryFile
@@ -71,8 +72,17 @@ class SourceFile:
     def should_be_copied(self) -> bool:
         return self.extension is not None and self.extension in ("tif", "tiff")
 
-    def get_size_in_mb(self) -> str:
-        return f"{self.size / 1_000_000:.2f} MB"
+
+# A message, for progress reporting.
+class Message(TypedDict):
+    # We don't use the path in this progress implementation, but it seems like a
+    # good thing to include, just in case.
+    path: str
+    # We don't know the size of our stac-geoparquet file before we create it,
+    # but we know the size of the rest of the files we touch thanks to
+    # **obstore**.
+    size: int | None
+    state: Literal["listed"] | Literal["got"] | Literal["created"] | Literal["put"]
 
 
 # A more advanced CLI would provide options for customizing the behavior of the operations. For now, we keep it simple.
@@ -85,14 +95,16 @@ def cli(source: str, destination: str) -> None:
     source_store = obstore.store.from_url(url=source, timeout=timeout)  # type: ignore
     destination = to_url(destination)
     destination_store = obstore.store.from_url(destination)
-    messages: Queue[str | None] = Queue()
+    messages: Queue[Message | None] = Queue()
 
     # There are plugins for **click** that simplify the ergonomics of async usage, but this internal function is good enough for our simple case.
     async def run() -> None:
-        asyncio.create_task(print_messages(messages))
+        progress_task = asyncio.create_task(progress_worker(messages))
         tasks = []
+        size = 0
         async with TaskGroup() as task_group:
             for source_file in get_source_files(source, source_store):
+                size += source_file.size
                 tasks.append(
                     task_group.create_task(
                         copy(
@@ -125,15 +137,17 @@ def cli(source: str, destination: str) -> None:
         #
         # You could then browse the items with [stac-browser](https://radiantearth.github.io/stac-browser/#/?.language=en).
         # See [the README](https://github.com/developmentseed/atd/blob/main/README.md) for a complete walkthrough.
-        await messages.put("Putting items.geoparquet")
         geoparquet_path = destination.rstrip("/") + "/" + "items.geoparquet"
         await stacrs.write(geoparquet_path, items)
-        await messages.put("Put items.geoparquet")
+        await messages.put({"state": "put", "path": geoparquet_path, "size": None})
 
-        # We use a `None` message to indicate that our message printing task should exit gracefully.
+        # We use None to indicate that our message printing task should exit gracefully.
         await messages.put(None)
-
-        print(f"Items are available at {geoparquet_path}")
+        put = await progress_task
+        put.write(
+            f"{humanize.naturalsize(size)} written to {destination}, items available at "
+            + geoparquet_path
+        )
 
     asyncio.run(run())
 
@@ -174,10 +188,11 @@ async def copy(
     source_store: ObjectStore,
     destination: str,
     destination_store: ObjectStore,
-    messages: Queue,
+    messages: Queue[Message | None],
 ) -> Item:
-    await messages.put(f"Getting {source_file.path} ({source_file.get_size_in_mb()})")
-    start = time.time()
+    await messages.put(
+        {"path": source_file.path, "size": source_file.size, "state": "listed"}
+    )
 
     # A real-world implementation would have some sort of throttling to ensure
     # we don't request too many things at once.
@@ -188,24 +203,18 @@ async def copy(
     # temporary file instead.
     data = bytes(await response.bytes_async())
     await messages.put(
-        f"Got {source_file.path} ({source_file.get_size_in_mb()} in {time.time() - start:.2f}s)"
+        {"path": source_file.path, "size": source_file.size, "state": "got"}
     )
 
     destination_href = destination.rstrip("/") + "/" + source_file.path
-    await messages.put(f"Creating STAC item for {source_file.path}")
-    start = time.time()
-
     item = create_item(data, source_file, destination_href)
     await messages.put(
-        f"Created STAC item for {source_file.path} ({time.time() - start:.2f}s)"
+        {"path": source_file.path, "size": source_file.size, "state": "created"}
     )
-
-    await messages.put(f"Putting {source_file.path} ({source_file.get_size_in_mb()})")
-    start = time.time()
 
     await obstore.put_async(destination_store, source_file.path, data)
     await messages.put(
-        f"Put {source_file.path} ({source_file.get_size_in_mb()} MB in {time.time() - start:.2f}s)"
+        {"path": source_file.path, "size": source_file.size, "state": "put"}
     )
 
     return item
@@ -237,18 +246,32 @@ def create_item(data: bytes, source_file: SourceFile, destination_href: str) -> 
     return item
 
 
-# A worker that simply prints messages to standard output. This could be
-# customized for your use-case to, e.g., log messages to a structured logger or
-# put notifications into a queue.
-async def print_messages(queue: Queue) -> None:
+# A worker that manages three progress bars, and returns the last one when done.
+async def progress_worker(queue: Queue[Message | None]) -> tqdm.tqdm:
+    got = tqdm.tqdm(
+        total=0, position=0, desc="Got", leave=False, unit="B", unit_scale=True
+    )
+    created = tqdm.tqdm(total=0, position=1, desc="Created", leave=False)
+    # There's one more file to put, the stac-geoparquet file. Since we don't
+    # know its size beforehand, we don't track bytes for the put progress bar.
+    put = tqdm.tqdm(total=1, position=2, desc="Put", leave=False)
     while True:
         message = await queue.get()
         if message is None:
             queue.task_done()
-            break
+            return put
+        elif message["state"] == "listed":
+            got.total += message["size"] or 0
+            created.total += 1
+            put.total += 1
+        elif message["state"] == "got":
+            got.update(message["size"])
+        elif message["state"] == "created":
+            created.update()
+        elif message["state"] == "put":
+            put.update()
         else:
-            print(message)
-            queue.task_done()
+            raise Exception("unreachable")
 
 
 if __name__ == "__main__":
