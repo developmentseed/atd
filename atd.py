@@ -7,6 +7,7 @@ This is a proof-of-concept that brings together a few ideas:
 - **Discoverability**: create [STAC items](https://github.com/radiantearth/stac-spec/blob/master/item-spec/item-spec.md) for each asset so we know what we copied, and store those items in a way that allows quick-and-easy search and discovery.
 
 This documentation was generated directly from the source using [pycco](https://github.com/pycco-docs/pycco).
+The code is hosted at <https://github.com/developmentseed/atd>.
 """
 
 from __future__ import annotations
